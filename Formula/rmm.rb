@@ -1,7 +1,7 @@
 class Rmm < Formula
   desc "Fast parallel rm -rf with a live progress bar"
   homepage "https://github.com/DanielKag/rmm"
-  version "0.1.0"
+  version "0.2.0"
   license "MIT"
 
   base = "https://github.com/DanielKag/rmm/releases/download/v#{version}/rmm-v#{version}"
@@ -9,27 +9,36 @@ class Rmm < Formula
   on_macos do
     on_arm do
       url "#{base}-aarch64-apple-darwin.tar.gz"
-      sha256 "e5cd880b8d4f2d48d19437ce33a24c095fc205e717b11d7c6adcac05e9623cb1"
+      sha256 "ced77bdf34b39062bc8e2b714ee8f62ae4db0f1c70a79ab89636ea6cfbe0138d"
     end
     on_intel do
       url "#{base}-x86_64-apple-darwin.tar.gz"
-      sha256 "b1c68033f026dd70386dff1a90737d838aa708bec94718a004fc5cf41a30a6d2"
+      sha256 "e57e6278bc8baaf17ee136a0cd0a5c8ed22d032e61904fbf39e3ab4c8f0070bf"
     end
   end
 
   on_linux do
     on_arm do
       url "#{base}-aarch64-unknown-linux-gnu.tar.gz"
-      sha256 "10dfd98ae8fd92750c72e9eb1764ffbead95bb94903aa6c24165184b0b5cde17"
+      sha256 "10bfc76fba4959a469dba43dbefe4682a3ecbdef834fa9673a924126645e4019"
     end
     on_intel do
       url "#{base}-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "a05d887e4424074779c2b918cb1727e7e34eac3dbd1c76839cde7a710942d540"
+      sha256 "6a6629e45fc24b0c1eab116cfa9d48246f3241b7e146ec31d04d5df53915994b"
     end
   end
 
   def install
     bin.install "rmm"
+    generate_completions_from_executable(bin/"rmm", "--completions")
+  end
+
+  def caveats
+    <<~EOS
+      zsh ships an unrelated completion for `rmm` (MH mail). For path completion,
+      make sure Homebrew's completions come first in fpath, before compinit/oh-my-zsh:
+        FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+    EOS
   end
 
   test do
@@ -37,6 +46,7 @@ class Rmm < Formula
     (testpath/"tree/a/b/file.txt").write "x"
     system bin/"rmm", "-rf", testpath/"tree"
     refute_path_exists testpath/"tree"
+    assert_match "_files", shell_output("#{bin}/rmm --completions zsh")
     assert_match version.to_s, shell_output("#{bin}/rmm --version")
   end
 end
