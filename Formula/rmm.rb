@@ -1,15 +1,35 @@
 class Rmm < Formula
   desc "Fast parallel rm -rf with a live progress bar"
   homepage "https://github.com/DanielKag/rmm"
-  url "https://github.com/DanielKag/rmm/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "a8b9ed67c35e2d968db2710c75ff5f2c0cde820f9dde50f3940cba6c195896e4"
+  version "0.1.0"
   license "MIT"
-  head "https://github.com/DanielKag/rmm.git", branch: "main"
 
-  depends_on "rust" => :build
+  base = "https://github.com/DanielKag/rmm/releases/download/v#{version}/rmm-v#{version}"
+
+  on_macos do
+    on_arm do
+      url "#{base}-aarch64-apple-darwin.tar.gz"
+      sha256 "e5cd880b8d4f2d48d19437ce33a24c095fc205e717b11d7c6adcac05e9623cb1"
+    end
+    on_intel do
+      url "#{base}-x86_64-apple-darwin.tar.gz"
+      sha256 "b1c68033f026dd70386dff1a90737d838aa708bec94718a004fc5cf41a30a6d2"
+    end
+  end
+
+  on_linux do
+    on_arm do
+      url "#{base}-aarch64-unknown-linux-gnu.tar.gz"
+      sha256 "10dfd98ae8fd92750c72e9eb1764ffbead95bb94903aa6c24165184b0b5cde17"
+    end
+    on_intel do
+      url "#{base}-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "a05d887e4424074779c2b918cb1727e7e34eac3dbd1c76839cde7a710942d540"
+    end
+  end
 
   def install
-    system "cargo", "install", *std_cargo_args
+    bin.install "rmm"
   end
 
   test do
